@@ -451,6 +451,7 @@ class GithubRepoPorcess(object):
                     i.split()[0] for i in req.text.splitlines()
                     if i
                     if not i.startswith('#')
+                    if not i.startswith('-e')
                 ]
         else:
             return list()
