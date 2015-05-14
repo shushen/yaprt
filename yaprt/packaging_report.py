@@ -277,8 +277,15 @@ class GithubRepoPorcess(object):
 
         url = urlparse.urlparse(repo['html_url'])
 
+        # item holds the path for the requirements
         item = dict()
         item['path'] = url.path.strip('/')
+        if set_branch:
+            item['branch'] = set_branch['name']
+            item['query'] = '?h='
+        else:
+            item['branch'] = item['query'] = ''
+
         item['raw_repo'] = repo['raw_repo']
         if not repo['url'].endswith('/'):
             repo['url'] = '%s/' % repo['url']
@@ -287,9 +294,15 @@ class GithubRepoPorcess(object):
         for key, value in orb.GIT_REQUIREMENTS_MAP.items():
             if key in repo['url']:
                 if set_branch:
+                    # This just checks existence of the branch
                     online_repo = urlparse.urljoin(repo['url'], 'tree/')
-                    online_repo = urlparse.urljoin(
-                        online_repo, set_branch['name']
+                    if key == 'github':
+                        online_repo = urlparse.urljoin(
+                            online_repo, set_branch['name']
+                        )
+                    else:
+                        online_repo = '?='.join(
+                        (online_repo, set_branch['name'])
                     )
                     # Retry the head operation 3 times
                     for _ in range(3):
@@ -305,6 +318,7 @@ class GithubRepoPorcess(object):
                             'Branch [ %s ] does not exist.', online_repo
                         )
                 else:
+                    # Trying to get branched?
                     branches = self._process_request(url=branches_url)
                     tags_url = urlparse.urljoin(repo['url'], 'tags')
                     _releases.extend(

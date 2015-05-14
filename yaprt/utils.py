@@ -98,7 +98,8 @@ def git_pip_link_parse(repo):
     _branch = branch.split('#')
     branch = _branch[0]
     html_url = url.split('.git')[0].rstrip('/')
-    html_url = '%s/%s' % (html_url, branch)
+    if 'github' in url:
+        html_url = '%s/%s' % (html_url, branch)
 
     # Determine if the package is a plugin type
     if len(_branch) > 1:

@@ -48,7 +48,9 @@ REQUIREMENTS_FILE_TYPES = [
 # Templates for online git repositories that we scan through in order to
 # discover requirements files and installable python packages.
 GIT_REQUIREMENTS_MAP = {
-    'github': 'https://raw.githubusercontent.com/%(path)s/%(file)s'
+    'github': 'https://raw.githubusercontent.com/%(path)s/%(file)s',
+    'siaras': 'http://cgit.siarasdev.com/%(path)s/plain/%(file)s%(query)s%('
+               'branch)s',
 }
 
 
