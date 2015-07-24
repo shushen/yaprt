@@ -30,7 +30,7 @@ from yaprt import utils
 
 LOG = logger.getLogger('repo_builder')
 VERSION_DESCRIPTORS = ['>=', '<=', '>', '<', '==', '~=', '!=']
-
+RETRIES = 4
 
 def build_wheels(args):
     """Work through the various wheels based on arguments.
@@ -192,7 +192,7 @@ class WheelBuilder(object):
         utils.copy_file(src=src_file, dst=dst_file)
 
     def _pip_build_wheels(self, package=None, packages_file=None,
-                          no_links=False, retry=False):
+                          no_links=False, retry=0):
         """Create a python wheel.
 
         The base command will timeout in 120 seconds and will create the wheels
@@ -266,7 +266,7 @@ class WheelBuilder(object):
         try:
             self._run_cmd(command=command)
         except OSError as exp:
-            if not retry:
+            if retry < RETRIES:
                 LOG.warn(
                     'Failed to process wheel build: "%s", other data: "%s"'
                     ' Trying again without defined link lookups.',
@@ -277,17 +277,18 @@ class WheelBuilder(object):
                 # Remove the build directory when failed.
                 utils.remove_dirs(build_dir)
 
+                no_links = True if (retry % 2 == 0) else False
                 if package:
                     self._pip_build_wheels(
                         package=package,
-                        no_links=True,
-                        retry=True
+                        no_links=no_links,
+                        retry=retry+1
                     )
                 else:
                     self._pip_build_wheels(
                         packages_file=packages_file,
-                        no_links=True,
-                        retry=True
+                        no_links=no_links,
+                        retry=retry+1
                     )
             else:
                 raise utils.AError(
