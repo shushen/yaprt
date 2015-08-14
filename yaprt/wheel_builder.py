@@ -227,6 +227,7 @@ class WheelBuilder(utils.RepoBaseClass):
             'wheel',
             '--timeout',
             '120',
+            '--pre',
             '--wheel-dir',
             self.args['build_output'],
             '--allow-all-external'
